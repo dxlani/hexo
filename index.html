@@ -17,10 +17,17 @@
   <script type="text/javascript">
   var app = angular.module('myApp', []);
   app.controller('siteCtrl', function($scope, $http) {
-    var cpu = io('http://127.0.0.1:2019/cpu')
+    var cpu = io('http://127.0.0.1:2019/cpu',{'reconnect': true })
     // var socket = io('http://127.0.0.1:2019')
    
     var myChart = echarts.init(document.getElementById('main'));
+
+    
+    cpu.on('error', function(data) { 
+      console.log("error",data); 
+      alert("连接服务器失败。。。");
+    });
+
     cpu.on('cpu message', (msg)=>{
       console.log('cpu',new Date())
       $scope.time=[];
@@ -66,8 +73,13 @@
         $scope.option.xAxis.data=$scope.time;//给X轴
       });
       myChart.setOption($scope.option,true);
-      chat.emit('cpu start', '-3h');
+          cpu.emit('cpu start', '-30m');
     });
+
+
+      cpu.on('message',msg=>{
+        console.log('msg',msg)
+      })
   });
    
 </script>
